@@ -13,24 +13,29 @@ MobileFreezeKit is a collection of reusable library modules for use across the o
 
 ## Project Structure & Module Organization
 
-The current scaffold includes shared Compose UI and Android, iOS, and Desktop (JVM) application entry points. Application modules are template placeholders and may remain empty; demos are optional and added only when needed or explicitly requested. Keep reusable libraries independent of these applications. Do not create demos as a required part of library development.
+The reusable `mvi` library provides the MVI presentation contracts, ViewModel, screen data exchange, and Compose lifecycle/event integration. It targets Android, JVM, `iosArm64`, and `iosSimulatorArm64`; iOS verification requires macOS.
 
-- `shared/src/commonMain/kotlin/com/dmerzliakov/freezekit/`: shared UI and logic; shared assets live in `commonMain/composeResources/`.
-- `shared/src/androidMain/`, `iosMain/`, and `jvmMain/`: platform implementations, including `expect`/`actual` declarations.
+Presentation: mvi-viewmodel (module `mvi`)
+
+Apply presentation rules to the library infrastructure; do not add application screens or navigation to the library.
+
+The current scaffold includes empty Android, iOS, and Desktop (JVM) application entry points. Application modules are template placeholders; demos are optional and added only when needed or explicitly requested. The `mvi` library is independent of these applications. Keep reusable libraries independent of application entry points. Do not create demos as a required part of library development.
+
 - `androidApp/`: Android launcher, manifest, and platform resources.
 - `desktopApp/`: JVM entry point and desktop packaging configuration.
 - `iosApp/`: Xcode project, SwiftUI entry point, and asset catalogs.
 - `gradle/libs.versions.toml`: dependency and plugin versions.
+- `mvi/src/commonMain/kotlin/com/dmerzliakov/freezekit/mvi/`: reusable MVI contracts and implementations.
 
 ## Build, Test, and Development Commands
 
 Run commands from the repository root using the Gradle wrapper. Examples use PowerShell; on macOS, replace `.\gradlew.bat` with `./gradlew`.
 
+- `.\gradlew.bat :mvi:compileKotlinJvm :mvi:compileAndroidMain`: compile the library for JVM and Android.
+- `.\gradlew.bat :mvi:jvmTest :mvi:testAndroidHostTest`: run library JVM and Android host tests.
+- `./gradlew :mvi:iosSimulatorArm64Test`: run library iOS simulator tests on macOS.
 - `.\gradlew.bat :androidApp:assembleDebug`: build the Android debug APK.
 - `.\gradlew.bat :desktopApp:run`: launch the desktop application.
-- `.\gradlew.bat :shared:testAndroidHostTest`: run shared Android host tests.
-- `.\gradlew.bat :shared:jvmTest`: run shared desktop tests.
-- `./gradlew :shared:iosSimulatorArm64Test`: run iOS simulator tests on macOS.
 
 Open `iosApp/` in Xcode to build and run iOS. The Gradle daemon configuration requests JDK 21; JVM compilation targets Java 11. Android SDK paths belong in `local.properties`.
 
