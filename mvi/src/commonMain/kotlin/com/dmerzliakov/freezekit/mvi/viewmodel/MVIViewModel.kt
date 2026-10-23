@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dmerzliakov.freezekit.mvi.ScreenShareDataBus
 import com.dmerzliakov.freezekit.mvi.aware.ScreenLifecycleAware
+import com.dmerzliakov.freezekit.mvi.model.LifecycleScreenIntent
 import com.dmerzliakov.freezekit.mvi.model.ScreenAction
 import com.dmerzliakov.freezekit.mvi.model.ScreenEvent
 import com.dmerzliakov.freezekit.mvi.model.ScreenIntent
@@ -58,6 +59,12 @@ abstract class MVIViewModel<State : ScreenState, Intent : ScreenIntent, Action :
 
 
 
+    final override fun obtainLifecycleIntent(intent: LifecycleScreenIntent): Job = viewModelScope.launch {
+        executeLifecycleIntent(intent)
+    }
+
+
+
     /**
      * Обрабатывает намерение пользователя [intent]
      *
@@ -73,6 +80,16 @@ abstract class MVIViewModel<State : ScreenState, Intent : ScreenIntent, Action :
     protected abstract suspend fun executeAction(action: Action)
 
 
+
+    /**
+     * Обрабатывает событие жизненного цикла [intent] в [viewModelScope].
+     * Каждый вызов запускается в отдельной корутине без ожидания завершения предыдущего.
+     * Очистка [ViewModel] отменяет обработку, поэтому [LifecycleScreenIntent.LeaveComposition]
+     * не гарантирует освобождение ресурсов.
+     *
+     * @param intent событие composition или жизненного цикла владельца экрана
+     */
+    protected open suspend fun executeLifecycleIntent(intent: LifecycleScreenIntent) {}
 
     /** Выполняет дополнительную логику при каждой подписке на [uiEvent] */
     protected open suspend fun onScreenSubscribeToEvent() {}

@@ -31,3 +31,11 @@ commonMain.dependencies {
 ```
 
 Приложение предоставляет владельца жизненного цикла и управляет сроком жизни ViewModel. На JVM требуется реализация `Dispatchers.Main`, например `kotlinx-coroutines-swing` для Compose Desktop. Библиотека не добавляет её транзитивно.
+
+### Жизненный цикл экрана
+
+`NotifyAboutScreenLifecycle` передаёт сообщения `LifecycleScreenIntent` в `ScreenLifecycleAware` через метод `obtainLifecycleIntent(intent): Job`. Для их обработки ViewModel переопределяет `protected suspend fun executeLifecycleIntent(intent: LifecycleScreenIntent)`. Тип `Intent` конкретного экрана задаётся отдельно.
+
+`EnterComposition` и `LeaveComposition` обозначают вход в composition и выход из неё, включая переустановку effect при смене получателя или владельца. `Start`, `Stop`, `Resume` и `Pause` относятся к жизненному циклу переданного владельца; `Stop` и `Pause` также отправляются при очистке соответствующих effects.
+
+Каждое сообщение обрабатывается в отдельной корутине `viewModelScope` без ожидания предыдущей обработки. Очистка ViewModel отменяет задачи; `LeaveComposition` не гарантирует освобождение ресурсов, особенно если scope уже отменён. Обязательную очистку следует привязывать к владельцу ресурса и отмене его работы.
