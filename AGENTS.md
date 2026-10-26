@@ -11,6 +11,13 @@ MobileFreezeKit is a collection of reusable library modules for use across the o
 - Define supported targets explicitly for each module; do not claim support for unimplemented or unverified platforms.
 - Prefer extending an existing module when the responsibility matches. Do not introduce speculative abstractions or modules without a concrete reuse case.
 
+## Documentation Audience
+
+- Keep `README.md` a public user guide to MobileFreezeKit: purpose, available modules, dependency setup, supported platforms, API examples, behavior, and limitations relevant to consumers.
+- Show how to consume published artifacts from Maven Central. Keep dependency coordinates and examples aligned with the release being documented; do not claim an unpublished version is available.
+- Do not add maintainer instructions to `README.md`: repository builds and tests, release procedures, version management, publishing plugins, CI configuration, credentials, signing keys, or scaffold application details.
+- Keep repository and maintainer instructions in `AGENTS.md`. Do not create separate maintenance documents unless requested.
+
 ## Project Structure & Module Organization
 
 The reusable `mvi` library provides the MVI presentation contracts, ViewModel, screen data exchange, and Compose lifecycle/event integration. It targets Android, JVM, `iosArm64`, and `iosSimulatorArm64`; iOS verification requires macOS.
@@ -40,6 +47,16 @@ Run commands from the repository root using the Gradle wrapper. Examples use Pow
 - `.\gradlew.bat :desktopApp:run`: launch the desktop application.
 
 Open `iosApp/` in Xcode to build and run iOS. The Gradle daemon configuration requests JDK 21; JVM compilation targets Java 11. Android SDK paths belong in `local.properties`.
+
+## Release Maintenance
+
+- `version.properties` is the single source of the shared release version. The root Gradle script assigns it to all projects; library modules inherit `project.version` without declaring their own versions.
+- Every release publishes all libraries configured for Maven Central, including unchanged modules. New libraries need their publishing plugin, artifact ID, POM metadata, signing configuration, and applicable workflow checks.
+- Publishing uses `com.vanniktech.maven.publish` and Dokka directly. Publish sources with existing KDoc and generated Dokka documentation alongside the platform artifacts.
+- `.github/workflows/release.yml` runs manually on macOS for an existing `v<version>` tag. It checks the tag against `version.properties`, runs the configured platform and artifact checks, then invokes `publishAndReleaseToMavenCentral` from the root without a module prefix. A push to `main` does not publish a release.
+- GitHub Actions secrets are `MAVEN_CENTRAL_USERNAME` and `MAVEN_CENTRAL_PASSWORD` from a Central Portal User Token, plus `SIGNING_KEY` (ASCII-armored private OpenPGP key) and `SIGNING_PASSWORD`. Never put their values in tracked files. The namespace must be verified and the public signing key distributed through a keyserver supported by Central.
+- Released Maven Central versions cannot be overwritten. Increment the shared version and create a new matching tag for the next release. Do not commit, push, create release tags, or publish without user authorization.
+- Generate local documentation with `.\gradlew.bat :mvi:dokkaGenerateHtml :mvi:kotlinMultiplatformDokkaJavadocJar`. HTML is written to `mvi/build/dokka/html`; publication archives are in `mvi/build/libs`.
 
 ## Coding Style & Naming Conventions
 

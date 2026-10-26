@@ -1,0 +1,101 @@
+name: Release libraries to Maven Central
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing release tag matching version.properties, for example v0.1.0'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-libraries
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - name: Validate release tag input
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || exit 1
+
+      - uses: actions/checkout@v6
+        with:
+          ref: refs/tags/${{ inputs.tag }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify tag and shared release version
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$(git rev-parse "refs/tags/$RELEASE_TAG^{commit}")"
+          VERSION=$(sed -n 's/^version=\([^[:space:]]*\)$/\1/p' version.properties)
+          test "$RELEASE_TAG" = "v$VERSION"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: '21'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK
+        run: sdkmanager 'platforms;android-37'
+
+      - uses: gradle/actions/setup-gradle@v5
+
+      - name: Build and test all published targets
+        run: |
+          bash ./gradlew :mvi:assemble :mvi:jvmTest :mvi:testAndroidHostTest \
+            :mvi:iosSimulatorArm64Test :mvi:compileKotlinIosArm64 \
+            :mvi:sourcesJar :mvi:androidSourcesJar :mvi:jvmSourcesJar \
+            :mvi:iosArm64SourcesJar :mvi:iosSimulatorArm64SourcesJar \
+            :mvi:kotlinMultiplatformDokkaJavadocJar :mvi:androidDokkaJavadocJar \
+            :mvi:jvmDokkaJavadocJar :mvi:iosArm64DokkaJavadocJar :mvi:iosSimulatorArm64DokkaJavadocJar \
+            :mvi:checkPomFileForKotlinMultiplatformPublication \
+            :mvi:checkPomFileForAndroidPublication :mvi:checkPomFileForJvmPublication \
+            :mvi:checkPomFileForIosArm64Publication :mvi:checkPomFileForIosSimulatorArm64Publication \
+            --no-configuration-cache --stacktrace
+
+      - name: Verify sources and generated documentation
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+
+          artifacts = Path('mvi/build/libs')
+          sources = list(artifacts.glob('*-sources.jar'))
+          docs = list(artifacts.glob('*-javadoc.jar'))
+          assert len(sources) >= 5, f'Missing sources artifacts: {sources}'
+          assert len(docs) == 5, f'Missing documentation artifacts: {docs}'
+          for path in sources:
+              with ZipFile(path) as jar:
+                  files = [name for name in jar.namelist() if name.endswith('.kt')]
+                  assert files, f'Empty sources: {path}'
+                  assert any('/**' in jar.read(name).decode('utf-8') for name in files), path
+          for path in docs:
+              with ZipFile(path) as jar:
+                  assert any(name.endswith('index.html') for name in jar.namelist()), path
+                  assert any('MVIViewModel' in name or 'm-v-i-view-model' in name for name in jar.namelist()), path
+          PY
+
+      - name: Publish signed artifacts and release to Maven Central
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
+        run: |
+          test -n "$ORG_GRADLE_PROJECT_mavenCentralUsername"
+          test -n "$ORG_GRADLE_PROJECT_mavenCentralPassword"
+          test -n "$ORG_GRADLE_PROJECT_signingInMemoryKey"
+          test -n "$ORG_GRADLE_PROJECT_signingInMemoryKeyPassword"
+          bash ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache --stacktrace

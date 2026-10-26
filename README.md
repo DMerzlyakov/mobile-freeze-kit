@@ -1,16 +1,31 @@
 # MobileFreezeKit
 
-Набор независимых библиотек на Kotlin Multiplatform. Сейчас доступен модуль `mvi`; публикация артефактов пока не настроена.
+Набор независимых библиотек на Kotlin Multiplatform. Сейчас доступен модуль `mvi`. Лицензия — [MIT](LICENSE).
 
 ## Подключение
 
-Если модуль включён в Gradle-проект:
+После публикации версии `0.1.0` добавьте `mavenCentral()` в репозитории проекта и зависимость в `commonMain`:
+
+В `settings.gradle.kts`:
+
+```kotlin
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+```
+
+В `build.gradle.kts` KMP-модуля:
 
 ```kotlin
 commonMain.dependencies {
-    implementation(project(":mvi"))
+    implementation("io.github.dmerzlyakov:freezekit-mvi:0.1.0")
 }
 ```
+
+Gradle выбирает платформенный артефакт автоматически. Для навигации по исходникам и чтения KDoc включите загрузку sources в IDE.
 
 Поддерживаемые цели: Android (minSdk 29), JVM (Java 11), `iosArm64` и `iosSimulatorArm64`. Код библиотеки и Compose-интеграция находятся в `commonMain`. Отдельного SwiftUI API нет. Приложение управляет сроком жизни ViewModel и предоставляет владельца lifecycle экрана. На Desktop нужна реализация `Dispatchers.Main`, например `kotlinx-coroutines-swing`.
 
@@ -336,16 +351,3 @@ private suspend fun returnContact(request: ScreenShareRequest<SelectedContact>, 
 - `uiEvent` — `SharedFlow` без повторной доставки. Без подписчиков событие теряется. Важный результат храните в State или данных приложения.
 - `CollectMviEvents` подписан при lifecycle не ниже `STARTED`; остановка отменяет подписку и текущий обработчик события. Очистка ViewModel отменяет её задачи и подписки.
 - Библиотека не перехватывает исключения. Обработку ошибок и отмену нужно учитывать в коде приложения.
-
-## Проверки
-
-Из корня репозитория в PowerShell:
-
-```powershell
-.\gradlew.bat :mvi:compileKotlinJvm :mvi:compileAndroidMain
-.\gradlew.bat :mvi:jvmTest :mvi:testAndroidHostTest
-```
-
-На macOS используйте `./gradlew`. Проверка iOS: `./gradlew :mvi:iosSimulatorArm64Test`, требуется macOS и Xcode. Gradle daemon запрашивает JDK 21, JVM-код компилируется под Java 11. Путь к Android SDK хранится в `local.properties`.
-
-`androidApp`, `desktopApp` и `iosApp` — пустые приложения-заготовки; для использования библиотеки не нужны.
