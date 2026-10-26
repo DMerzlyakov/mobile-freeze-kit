@@ -2,6 +2,7 @@ package com.dmerzliakov.freezekit.mvi.viewmodel
 
 import androidx.lifecycle.ViewModelStore
 import com.dmerzliakov.freezekit.mvi.model.ScreenAction
+import com.dmerzliakov.freezekit.mvi.model.ScreenBootstrapData
 import com.dmerzliakov.freezekit.mvi.model.ScreenEvent
 import com.dmerzliakov.freezekit.mvi.model.ScreenIntent
 import com.dmerzliakov.freezekit.mvi.model.ScreenShareData
@@ -300,8 +301,13 @@ class MVIViewModelShareDataTest {
         data object Cancel : ProbeIntent
     }
 
-    private class ProbeViewModel : MVIViewModel<ProbeState, ProbeIntent, ScreenAction, ScreenEvent>(
+    private data object ProbeBootstrapData : ScreenBootstrapData
+
+    private class ProbeViewModel : MVIViewModel<
+        ProbeState, ProbeIntent, ScreenAction, ScreenEvent, ProbeBootstrapData,
+    >(
         initialState = ProbeState(received = emptyList(), completed = emptyList()),
+        bootstrapData = ProbeBootstrapData,
     ) {
         lateinit var listenerJob: Job
             private set

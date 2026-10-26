@@ -15,7 +15,9 @@ MobileFreezeKit is a collection of reusable library modules for use across the o
 
 The reusable `mvi` library provides the MVI presentation contracts, ViewModel, screen data exchange, and Compose lifecycle/event integration. It targets Android, JVM, `iosArm64`, and `iosSimulatorArm64`; iOS verification requires macOS.
 
-Presentation: mvi-viewmodel (module `mvi`)
+Presentation: freezekit-mvi
+
+Apply personal `my-android-workflows` skills: `kotlin-style` and `presentation-freezekit-mvi` for affected code, `test` for test formatting, and `verification-policy` for checks. The `mvi` module is presentation infrastructure, not an application domain/data layer; do not add UseCase/Repository layers merely to match an application template. Read the actual library API before changing its contracts.
 
 Apply presentation rules to the library infrastructure; do not add application screens or navigation to the library.
 
@@ -41,15 +43,15 @@ Open `iosApp/` in Xcode to build and run iOS. The Gradle daemon configuration re
 
 ## Coding Style & Naming Conventions
 
-Follow existing Kotlin formatting with four-space indentation. Use `PascalCase` for classes and composable functions, `camelCase` for ordinary functions and properties, and lowercase package names. Keep packages under `com.dmerzliakov.freezekit`. Put reusable code in `commonMain` and platform APIs in their corresponding source sets. Manage dependency versions through the version catalog. No dedicated formatter or lint plugin is configured; use IDE formatting.
+Apply the personal `kotlin-style`. Keep packages under `com.dmerzliakov.freezekit`. Put reusable code in `commonMain` and platform APIs in their corresponding source sets. Manage dependency versions through the version catalog. No dedicated formatter or lint plugin is configured; do not introduce one as part of ordinary code changes.
 
 ## Testing Guidelines
 
-Tests use `kotlin.test` and live in `commonTest`, `androidHostTest`, `jvmTest`, and `iosTest`. Name test classes `*Test` and use descriptive test methods. Add meaningful behavioral assertions for changed logic. No coverage threshold is configured. Run the tests for affected platforms and report any unavailable platform checks.
+Tests use `kotlin.test` and live in `commonTest`, `androidHostTest`, `jvmTest`, and `iosTest`. Use the personal `test` skill for scenario KDoc and test method names. Add meaningful behavioral assertions for changed logic. No coverage threshold is configured. Run the tests for affected platforms and report any unavailable platform checks.
 
 ## Commit & Pull Request Guidelines
 
-Git history is unavailable in this checkout, so no existing commit convention can be established. Use concise, imperative commit subjects. Pull requests should describe the change, link relevant issues, list verification commands and results, and include screenshots for UI changes.
+Follow the existing commit convention when available; otherwise use concise, imperative commit subjects. Pull requests should describe the change, link relevant issues, list verification commands and results, and include screenshots for UI changes.
 
 ## Configuration Hygiene
 

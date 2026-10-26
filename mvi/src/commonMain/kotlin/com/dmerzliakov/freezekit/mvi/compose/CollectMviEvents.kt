@@ -22,7 +22,7 @@ import com.dmerzliakov.freezekit.mvi.viewmodel.MVIViewModel
  */
 @Composable
 fun <Event : ScreenEvent> CollectMviEvents(
-    viewModel: MVIViewModel<*, *, *, Event>,
+    viewModel: MVIViewModel<*, *, *, Event, *>,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     onEvent: suspend (Event) -> Unit,
 ) {

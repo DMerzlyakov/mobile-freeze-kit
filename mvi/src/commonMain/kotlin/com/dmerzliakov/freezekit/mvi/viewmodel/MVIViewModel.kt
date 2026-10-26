@@ -6,6 +6,7 @@ import com.dmerzliakov.freezekit.mvi.ScreenShareDataBus
 import com.dmerzliakov.freezekit.mvi.aware.ScreenLifecycleAware
 import com.dmerzliakov.freezekit.mvi.model.LifecycleScreenIntent
 import com.dmerzliakov.freezekit.mvi.model.ScreenAction
+import com.dmerzliakov.freezekit.mvi.model.ScreenBootstrapData
 import com.dmerzliakov.freezekit.mvi.model.ScreenEvent
 import com.dmerzliakov.freezekit.mvi.model.ScreenIntent
 import com.dmerzliakov.freezekit.mvi.model.ScreenShareData
@@ -33,9 +34,18 @@ import kotlinx.coroutines.launch
  * Очистка [ViewModel] отменяет обработчики и подписки. События жизненного цикла передаёт UI.
  *
  * @param initialState начальное состояние экрана
+ * @param bootstrapData неизменяемая конфигурация экрана, доступная через [bootstrapData]
  */
-abstract class MVIViewModel<State : ScreenState, Intent : ScreenIntent, Action : ScreenAction, Event : ScreenEvent>(
+abstract class MVIViewModel<
+    State : ScreenState,
+    Intent : ScreenIntent,
+    Action : ScreenAction,
+    Event : ScreenEvent,
+    BootstrapData : ScreenBootstrapData,
+>(
     initialState: State,
+    /** Предоставляет конфигурацию экрана отдельно от изменяемого [uiState] */
+    protected val bootstrapData: BootstrapData,
 ) : ViewModel(), ScreenLifecycleAware {
     /** Предоставляет текущее состояние экрана */
     val uiState: StateFlow<State>
