@@ -67,11 +67,21 @@ jobs:
             :mvi:checkPomFileForIosArm64Publication :mvi:checkPomFileForIosSimulatorArm64Publication \
             --no-configuration-cache --stacktrace
 
-      - name: Verify sources and generated documentation
+      - name: Verify Android minSdk, sources and generated documentation
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          from xml.etree import ElementTree
           from zipfile import ZipFile
+
+          aars = list(Path('mvi/build/outputs/aar').glob('*.aar'))
+          assert len(aars) == 1, f'Expected one Android AAR: {aars}'
+          with ZipFile(aars[0]) as aar:
+              manifest = ElementTree.fromstring(aar.read('AndroidManifest.xml'))
+              uses_sdk = manifest.find('uses-sdk')
+              assert uses_sdk is not None, 'Missing uses-sdk in Android AAR'
+              min_sdk = uses_sdk.get('{http://schemas.android.com/apk/res/android}minSdkVersion')
+              assert min_sdk == '24', f'Expected Android minSdk 24, found {min_sdk}'
 
           artifacts = Path('mvi/build/libs')
           sources = list(artifacts.glob('*-sources.jar'))

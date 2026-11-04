@@ -23,7 +23,13 @@ kotlin {
     android {
         namespace = "com.dmerzliakov.freezekit.mvi"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
-        minSdk = libs.versions.android.minSdk.get().toInt()
+        minSdk = libs
+            .versions
+            .android
+            .mvi
+            .minSdk
+            .get()
+            .toInt()
 
         compilerOptions {
             jvmTarget = JvmTarget.JVM_11
