@@ -21,13 +21,13 @@ dependencyResolutionManagement {
 
 ```kotlin
 commonMain.dependencies {
-    implementation("io.github.dmerzlyakov:freezekit-mvi:0.1.0")
+    implementation("io.github.dmerzlyakov:freezekit-mvi:0.1.1")
 }
 ```
 
 Gradle выбирает платформенный артефакт автоматически. Для навигации по исходникам и чтения KDoc включите загрузку sources в IDE.
 
-Опубликованная версия `0.1.0` поддерживает Android с minSdk 29. В готовящейся версии `0.1.1` минимальная версия Android снижена до API 24 (Android 7.0); эта версия ещё не опубликована. Для Android требуется compileSdk 37 или выше.
+Версия `0.1.1` поддерживает Android с API 24 (Android 7.0). Для Android требуется compileSdk 37 или выше.
 
 Поддерживаемые цели: Android, JVM (Java 11), `iosArm64` и `iosSimulatorArm64`. Код библиотеки и Compose-интеграция находятся в `commonMain`. Отдельного SwiftUI API нет. Приложение управляет сроком жизни ViewModel и предоставляет владельца lifecycle экрана. На Desktop нужна реализация `Dispatchers.Main`, например `kotlinx-coroutines-swing`.
 
