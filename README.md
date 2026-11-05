@@ -2,6 +2,8 @@
 
 Набор независимых библиотек на Kotlin Multiplatform. Сейчас доступен модуль `mvi`. Лицензия — [MIT](LICENSE).
 
+История версий — в [CHANGELOG.md](CHANGELOG.md).
+
 ## Подключение
 
 Добавьте `mavenCentral()` в репозитории проекта и зависимость в `commonMain`:

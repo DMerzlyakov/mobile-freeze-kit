@@ -50,6 +50,7 @@ Open `iosApp/` in Xcode to build and run iOS. The Gradle daemon configuration re
 
 ## Release Maintenance
 
+- Keep release history in `CHANGELOG.md`, with the newest version first. Update it for each shared release version with the release date and consumer-facing changes; clearly distinguish unreleased changes from published releases.
 - `version.properties` is the single source of the shared release version. The root Gradle script assigns it to all projects; library modules inherit `project.version` without declaring their own versions.
 - Every release publishes all libraries configured for Maven Central, including unchanged modules. New libraries need their publishing plugin, artifact ID, POM metadata, signing configuration, and applicable workflow checks.
 - Publishing uses `com.vanniktech.maven.publish` and Dokka directly. Publish sources with existing KDoc and generated Dokka documentation alongside the platform artifacts.
